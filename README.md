@@ -1,46 +1,49 @@
-# 📄 PasteCV — AI-Powered Resume Parser
+# 📄 PasteCV PRO — AI-Powered Batch Resume Parser
 
-
+<div align="center">
+  <img src="https://img.shields.io/badge/PHASE_1-DOCKER_FOUNDATION-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/AI_EXTRACTION-GROQ_LPU-orange?style=for-the-badge" />
+</div>
 
 ---
 
 ### 🚀 The Problem
-Recruiters receive CVs in inconsistent formats (PDF, DOCX, TXT, or just raw text) and waste hours extracting key information manually. 
+Recruiters receive CVs in inconsistent formats (PDF, DOCX, TXT) and waste hours extracting key information manually. Standard parsers often fail on complex layouts or require processing files one by one.
 
 ### 💡 Why It Matters
-A recruiter reviewing **50 CVs/day** loses **2–3 hours** just to formatting noise and manual data entry. PasteCV eliminates this friction.
+A recruiter reviewing **50 CVs/day** loses **~3 hours** just to formatting noise and manual data entry. PasteCV PRO eliminates this bottleneck with batch intelligence.
 
-### ✨ Core Feature
-Simply **paste raw CV text** or upload a file, and get a **structured JSON output** containing:
-- 👤 Name & Contact Info
-- 🛠️ Skills
-- 💼 Professional Experience
-- 🎓 Education
+### ✨ Key Features
+- 📦 **Batch Staging**: Upload and stage multiple files (.pdf, .docx, .txt) before processing them in a single AI pass.
+- 🔍 **Multi-CV Detection**: Intelligent extraction that can identify multiple candidate profiles within a single document or text block.
+- ⚡ **LPU™ Powered**: Leveraging Groq's Language Processing Units for sub-second inference speed.
+- 📋 **Structured Data**: normalized JSON output (Name, Email, Skills, Experience, Education).
+- 📑 **Report Export**: Generate and download professional PDF extraction reports instantly.
 
 ---
 
 ## 🛠️ Tech Stack
-- **Backend**: Python / Flask
-- **AI**: Groq API (LPU™ Acceleration)
-- **Containerization**: Docker (Multi-stage builds)
-- **Frontend**: React / Vite / Vanilla CSS
+- **Backend**: Python / Flask (3.12)
+- **AI**: Groq API (`llama-3.3-70b-versatile`)
+- **Frontend**: React 18 / Vite / Bootstrap (HUD Workspace Design)
+- **Containerization**: Docker (Multi-stage production builds)
 
 ## 📦 Project Structure
 ```text
 .
-├── backend/            # Flask API & AI Logic
-├── frontend/           # React HUD Interface
-├── Dockerfile          # Multi-stage production build
-├── .dockerignore       # Build optimization
+├── backend/            # Flask API, PDF/DOCX Parsing & AI Logic
+├── frontend/           # React HUD Workspace (White & Blue Theme)
+├── Dockerfile          # Multi-stage production build (Node + Python)
+├── .dockerignore       # Build optimization & security
 └── README.md           # Project Documentation
 ```
 
 ## 🛡️ Security Features
-- **Hardened Headers**: Strict CSP, XSS protection, and Frame-Options.
-- **Rate Limiting**: Protection against API abuse (10 requests/min).
+- **Hardened Headers**: Strict CSP, XSS protection, and Frame-Options (Flask-Talisman style).
+- **Rate Limiting**: Integrated `Flask-Limiter` (10 requests/min) to prevent API abuse.
 - **Safe Uploads**: Strict file extension filtering and 10MB size limits.
 - **Non-Root Execution**: Container runs as a restricted `appuser`.
-- **Error Sanitization**: Zero debug info exposed in production.
+- **Error Sanitization**: Production-safe error handling with zero debug leakage.
 
 ---
 
