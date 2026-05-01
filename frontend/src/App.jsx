@@ -114,10 +114,6 @@ function App() {
             </div>
           </div>
           <div className="d-flex align-items-center gap-4">
-            <div className="top-meta">
-              <div className="pulse-dot"></div>
-              CLAUDE · ONLINE
-            </div>
             <button className="btn btn-ghost d-flex align-items-center gap-2" onClick={clearAll} style={{ border: 'none', color: 'var(--fg-3)' }}>
               <RotateCcw size={14} /> RESET
             </button>
