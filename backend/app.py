@@ -76,20 +76,30 @@ def parse_cv():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/upload', methods=['POST'])
-def upload_file():
+def upload_files():
     if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+        if 'files' in request.files:
+            files = request.files.getlist('files')
+        else:
+            return jsonify({"error": "No file part"}), 400
+    else:
+        files = [request.files['file']]
 
+    all_cvs = []
     try:
-        text = extract_text_from_file(file)
-        if text is None:
-            return jsonify({"error": "Unsupported file format"}), 400
+        for file in files:
+            if file.filename == '':
+                continue
+            
+            text = extract_text_from_file(file)
+            if text:
+                structured_data = get_cv_data(text)
+                if 'cvs' in structured_data:
+                    all_cvs.extend(structured_data['cvs'])
+                else:
+                    all_cvs.append(structured_data)
         
-        structured_data = get_cv_data(text)
-        return jsonify(structured_data)
+        return jsonify({"cvs": all_cvs})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
