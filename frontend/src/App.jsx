@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { FileText, Code, Copy, Zap, Loader2, Upload, Download, Trash2 } from 'lucide-react'
+import { FileText, Code, Copy, Zap, Loader2, Upload, Download, Trash2, Eye, X } from 'lucide-react'
 import jsPDF from 'jspdf'
 
 function App() {
   const [text, setText] = useState('')
+  const [selectedFiles, setSelectedFiles] = useState([])
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -28,15 +29,22 @@ function App() {
     }
   }
 
-  const handleFileUpload = async (e) => {
+  const handleFileSelect = (e) => {
     const files = Array.from(e.target.files)
-    if (files.length === 0) return
+    setSelectedFiles(prev => [...prev, ...files])
+  }
 
+  const removeFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleProcessFiles = async () => {
+    if (selectedFiles.length === 0) return
     setLoading(true)
     setResults([])
     
     const formData = new FormData()
-    files.forEach(file => {
+    selectedFiles.forEach(file => {
       formData.append('files', file)
     })
 
@@ -87,6 +95,7 @@ function App() {
 
   const clearAll = () => {
     setText('')
+    setSelectedFiles([])
     setResults([])
   }
 
@@ -106,34 +115,60 @@ function App() {
               <FileText size={20} className="text-primary" />
               Source Resumes
             </div>
-            {text && <Trash2 size={18} className="text-muted" style={{ cursor: 'pointer' }} onClick={clearAll} />}
+            {(text || selectedFiles.length > 0) && <Trash2 size={18} className="text-muted" style={{ cursor: 'pointer' }} onClick={clearAll} />}
           </div>
-          <textarea 
-            placeholder="Paste text or upload multiple files (PDF, DOCX)..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
+
+          {selectedFiles.length > 0 ? (
+            <div className="file-list">
+              {selectedFiles.map((file, index) => (
+                <div key={index} className="file-item">
+                  <span className="file-name">{file.name}</span>
+                  <div className="file-actions">
+                    <Eye size={16} className="text-primary" style={{ cursor: 'pointer' }} />
+                    <X size={16} className="text-danger" style={{ cursor: 'pointer' }} onClick={() => removeFile(index)} />
+                  </div>
+                </div>
+              ))}
+              <label className="add-more-btn">
+                <Upload size={16} /> Add more files...
+                <input type="file" hidden multiple accept=".pdf,.docx,.txt" onChange={handleFileSelect} />
+              </label>
+            </div>
+          ) : (
+            <textarea 
+              placeholder="Paste text or upload multiple files (PDF, DOCX)..."
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+          )}
+
           <div className="btn-group" style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-            <button 
-              className="btn btn-primary" 
-              onClick={handleParse} 
-              disabled={loading || !text.trim()}
-              style={{ flex: 2 }}
-            >
-              {loading ? <span className="loader"></span> : <><Zap size={18} /> Parse Text</>}
-            </button>
-            
-            <label className="btn btn-secondary" style={{ flex: 1 }}>
-              <Upload size={18} /> Batch
-              <input 
-                type="file" 
-                hidden 
-                multiple 
-                accept=".pdf,.docx,.txt" 
-                onChange={handleFileUpload}
+            {selectedFiles.length > 0 ? (
+              <button 
+                className="btn btn-primary" 
+                onClick={handleProcessFiles} 
                 disabled={loading}
-              />
-            </label>
+                style={{ flex: 1 }}
+              >
+                {loading ? <span className="loader"></span> : <><Zap size={18} /> Process {selectedFiles.length} Files</>}
+              </button>
+            ) : (
+              <>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={handleParse} 
+                  disabled={loading || !text.trim()}
+                  style={{ flex: 2 }}
+                >
+                  {loading ? <span className="loader"></span> : <><Zap size={18} /> Parse Text</>}
+                </button>
+                
+                <label className="btn btn-secondary" style={{ flex: 1 }}>
+                  <Upload size={18} /> Batch
+                  <input type="file" hidden multiple accept=".pdf,.docx,.txt" onChange={handleFileSelect} />
+                </label>
+              </>
+            )}
           </div>
         </div>
 
