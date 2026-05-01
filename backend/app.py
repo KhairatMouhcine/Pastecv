@@ -53,7 +53,7 @@ def get_cv_data(cv_text):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"Text containing one or more CVs:\n{cv_text}"}
         ],
-        model="llama3-8b-8192",
+        model="meta-llama/llama-4-scout-17b-16e-instruct",
         response_format={"type": "json_object"},
     )
     return json.loads(chat_completion.choices[0].message.content)
