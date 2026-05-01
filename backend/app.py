@@ -19,6 +19,45 @@ def serve(path):
     else:
         return send_from_directory(app.static_folder, 'index.html')
 
+import io
+import PyPDF2
+import docx
+
+def extract_text_from_file(file):
+    filename = file.filename.lower()
+    if filename.endswith('.pdf'):
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text()
+        return text
+    elif filename.endswith('.docx'):
+        doc = docx.Document(file)
+        return "\n".join([para.text for para in doc.paragraphs])
+    elif filename.endswith('.txt'):
+        return file.read().decode('utf-8')
+    else:
+        return None
+
+def get_cv_data(cv_text):
+    system_prompt = (
+        "You are an expert recruiter assistant. "
+        "Your task is to identify and extract ALL individual CVs from the provided text. "
+        "Return a JSON object with a key 'cvs' which is an array of objects. "
+        "Each object must contain: name, email, skills (array), experience (array of objects), "
+        "and education (array of objects). "
+    )
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Text containing one or more CVs:\n{cv_text}"}
+        ],
+        model="llama3-8b-8192",
+        response_format={"type": "json_object"},
+    )
+    return json.loads(chat_completion.choices[0].message.content)
+
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "healthy"}), 200
@@ -27,34 +66,29 @@ def health_check():
 def parse_cv():
     data = request.json
     cv_text = data.get('text')
-    
     if not cv_text:
         return jsonify({"error": "No CV text provided"}), 400
+    try:
+        structured_data = get_cv_data(cv_text)
+        return jsonify(structured_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
 
     try:
-        system_prompt = (
-            "You are an expert recruiter assistant. "
-            "Your task is to identify and extract ALL individual CVs from the provided text. "
-            "Return a JSON object with a key 'cvs' which is an array of objects. "
-            "Each object must contain: name, email, skills (array), experience (array of objects), "
-            "and education (array of objects). "
-            "If only one CV is found, still return it inside the 'cvs' array."
-        )
-
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Text containing one or more CVs:\n{cv_text}"}
-            ],
-            model="llama3-8b-8192",
-            response_format={"type": "json_object"},
-        )
-
-        import json
-        structured_data = json.loads(chat_completion.choices[0].message.content)
+        text = extract_text_from_file(file)
+        if text is None:
+            return jsonify({"error": "Unsupported file format"}), 400
         
+        structured_data = get_cv_data(text)
         return jsonify(structured_data)
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { FileText, Code, Copy, Zap, Loader2 } from 'lucide-react'
+import { FileText, Code, Copy, Zap, Loader2, Upload } from 'lucide-react'
 
 function App() {
   const [text, setText] = useState('')
@@ -9,23 +9,42 @@ function App() {
 
   const handleParse = async () => {
     if (!text.trim()) return
-    
     setLoading(true)
     setResults([])
-    
     try {
       const response = await fetch('http://127.0.0.1:5000/parse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text })
       })
-      
       const data = await response.json()
-      if (response.ok) {
-        setResults(data.cvs || [])
-      } else {
-        alert(data.error || 'Something went wrong')
-      }
+      if (response.ok) setResults(data.cvs || [])
+      else alert(data.error || 'Something went wrong')
+    } catch (err) {
+      alert('Could not connect to the backend. Make sure Flask is running!')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    setLoading(true)
+    setResults([])
+    
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/upload', {
+        method: 'POST',
+        body: formData
+      })
+      const data = await response.json()
+      if (response.ok) setResults(data.cvs || [])
+      else alert(data.error || 'Something went wrong')
     } catch (err) {
       alert('Could not connect to the backend. Make sure Flask is running!')
     } finally {
@@ -59,13 +78,27 @@ function App() {
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-          <button 
-            className="btn" 
-            onClick={handleParse} 
-            disabled={loading || !text.trim()}
-          >
-            {loading ? <span className="loader"></span> : <><Zap size={18} /> Extract {results.length > 0 ? results.length : ''} CVs</>}
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+            <button 
+              className="btn" 
+              onClick={handleParse} 
+              disabled={loading || !text.trim()}
+              style={{ flex: 2 }}
+            >
+              {loading ? <span className="loader"></span> : <><Zap size={18} /> Extract Text</>}
+            </button>
+            
+            <label className="btn" style={{ flex: 1, background: 'rgba(255,255,255,0.1)', cursor: 'pointer' }}>
+              <Upload size={18} /> Upload
+              <input 
+                type="file" 
+                hidden 
+                accept=".pdf,.docx,.txt" 
+                onChange={handleFileUpload}
+                disabled={loading}
+              />
+            </label>
+          </div>
         </div>
 
         {/* Output Card */}
