@@ -74,7 +74,7 @@ function App() {
     results.forEach((cv, index) => {
       if (y > 250) { doc.addPage(); y = 20; }
       doc.setFontSize(14)
-      doc.setTextColor(139, 92, 246)
+      doc.setTextColor(127, 64, 255)
       doc.text(`${index + 1}. ${cv.name || 'Unknown Candidate'}`, 20, y)
       doc.setFontSize(10)
       doc.setTextColor(0, 0, 0)
@@ -100,118 +100,123 @@ function App() {
   }
 
   return (
-    <div className="container">
-      <header className="header">
-        <div className="logo-glow"></div>
-        <h1>PasteCV <span className="badge">PRO</span></h1>
-        <p>AI-Powered Batch Resume Parser</p>
+    <div className="app-root">
+      {/* ── Top Bar ───────────────────────────────────────── */}
+      <header className="topbar">
+        <div className="brand">
+          <div className="brand-mark">P</div>
+          <div className="brand-name">
+            <div className="n">PasteCV <span className="pro">PRO</span></div>
+            <div className="tag">AI Batch Parser</div>
+          </div>
+        </div>
+        <div className="top-actions">
+          <button className="btn" onClick={clearAll}><Trash2 size={14} /> Clear System</button>
+        </div>
       </header>
 
-      <main className="main-grid">
-        {/* Input Card */}
-        <div className="card">
-          <div className="card-title" style={{ justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <FileText size={20} className="text-primary" />
-              Source Resumes
+      {/* ── Workspace ─────────────────────────────────────── */}
+      <main className="workspace">
+        <div className="grid">
+          
+          {/* ── Input Pane ── */}
+          <div className="pane">
+            <div className="corner tl"></div><div className="corner tr"></div>
+            <div className="corner bl"></div><div className="corner br"></div>
+            
+            <div className="pane-head">
+              <h2>Source Resumes</h2>
+              <div className="seg">Mode: <b>{selectedFiles.length > 0 ? 'Batch' : 'Text'}</b></div>
             </div>
-            {(text || selectedFiles.length > 0) && <Trash2 size={18} className="text-muted" style={{ cursor: 'pointer' }} onClick={clearAll} />}
-          </div>
 
-          {selectedFiles.length > 0 ? (
-            <div className="file-list">
-              {selectedFiles.map((file, index) => (
-                <div key={index} className="file-item">
-                  <span className="file-name">{file.name}</span>
-                  <div className="file-actions">
-                    <Eye size={16} className="text-primary" style={{ cursor: 'pointer' }} />
-                    <X size={16} className="text-danger" style={{ cursor: 'pointer' }} onClick={() => removeFile(index)} />
-                  </div>
-                </div>
-              ))}
-              <label className="add-more-btn">
-                <Upload size={16} /> Add more files...
-                <input type="file" hidden multiple accept=".pdf,.docx,.txt" onChange={handleFileSelect} />
-              </label>
-            </div>
-          ) : (
-            <textarea 
-              placeholder="Paste text or upload multiple files (PDF, DOCX)..."
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            />
-          )}
-
-          <div className="btn-group" style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
             {selectedFiles.length > 0 ? (
-              <button 
-                className="btn btn-primary" 
-                onClick={handleProcessFiles} 
-                disabled={loading}
-                style={{ flex: 1 }}
-              >
-                {loading ? <span className="loader"></span> : <><Zap size={18} /> Process {selectedFiles.length} Files</>}
-              </button>
-            ) : (
-              <>
-                <button 
-                  className="btn btn-primary" 
-                  onClick={handleParse} 
-                  disabled={loading || !text.trim()}
-                  style={{ flex: 2 }}
-                >
-                  {loading ? <span className="loader"></span> : <><Zap size={18} /> Parse Text</>}
-                </button>
-                
-                <label className="btn btn-secondary" style={{ flex: 1 }}>
-                  <Upload size={18} /> Batch
+              <div className="file-list">
+                {selectedFiles.map((file, index) => (
+                  <div key={index} className="file-item">
+                    <span className="file-name">{file.name}</span>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <Eye size={16} className="text-primary" style={{ cursor: 'pointer' }} />
+                      <X size={16} style={{ color: 'var(--err)', cursor: 'pointer' }} onClick={() => removeFile(index)} />
+                    </div>
+                  </div>
+                ))}
+                <label className="btn" style={{ marginTop: 'auto', justifyContent: 'center', borderStyle: 'dashed' }}>
+                  <Upload size={16} /> Add more files...
                   <input type="file" hidden multiple accept=".pdf,.docx,.txt" onChange={handleFileSelect} />
                 </label>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Output Card */}
-        <div className="card">
-          <div className="card-title" style={{ justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Code size={20} className="text-primary" />
-              Extraction Output {results.length > 0 && <span className="badge-count">{results.length}</span>}
-            </div>
-            {results.length > 0 && (
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button className="icon-btn" onClick={copyToClipboard} title="Copy JSON">
-                  {copied ? 'Done!' : <Copy size={16} />}
-                </button>
-                <button className="icon-btn" onClick={downloadPDF} title="Download PDF">
-                  <Download size={16} />
-                </button>
               </div>
-            )}
-          </div>
-          <div className="output-container">
-            {results.length > 0 ? (
-              <pre>{JSON.stringify(results, null, 2)}</pre>
             ) : (
-              <div className="empty-state">
-                {loading ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                    <span className="loader" style={{ width: '40px', height: '40px' }}></span>
-                    <p>AI is analyzing your files...</p>
-                  </div>
-                ) : (
-                  <p>Ready to structure your data.</p>
-                )}
+              <textarea 
+                placeholder="Paste raw text here or use batch upload..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              />
+            )}
+
+            <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+              {selectedFiles.length > 0 ? (
+                <button className="btn btn-primary" onClick={handleProcessFiles} disabled={loading} style={{ flex: 1 }}>
+                  {loading ? <span className="loader" style={{ width: '14px', height: '14px', borderTopColor: 'white' }}></span> : <><Zap size={16} /> Process Batch</>}
+                </button>
+              ) : (
+                <>
+                  <button className="btn btn-primary" onClick={handleParse} disabled={loading || !text.trim()} style={{ flex: 2 }}>
+                    {loading ? <span className="loader" style={{ width: '14px', height: '14px', borderTopColor: 'white' }}></span> : <><Zap size={16} /> Parse Text</>}
+                  </button>
+                  <label className="btn" style={{ flex: 1, justifyContent: 'center', cursor: 'pointer' }}>
+                    <Upload size={16} /> Batch
+                    <input type="file" hidden multiple accept=".pdf,.docx,.txt" onChange={handleFileSelect} />
+                  </label>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* ── Results Pane ── */}
+          <div className="pane">
+            <div className="corner tl"></div><div className="corner tr"></div>
+            <div className="corner bl"></div><div className="corner br"></div>
+
+            <div className="pane-head">
+              <h2>Extraction Output</h2>
+              {results.length > 0 && (
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button className="btn" onClick={copyToClipboard} title="Copy JSON">
+                    {copied ? 'Copied' : <Copy size={14} />}
+                  </button>
+                  <button className="btn" onClick={downloadPDF} title="Download PDF">
+                    <Download size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="output-container">
+              {results.length > 0 ? (
+                <pre>{JSON.stringify(results, null, 2)}</pre>
+              ) : (
+                <div className="empty-state">
+                  {loading ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                      <Loader2 size={40} style={{ animation: 'spin 1s linear infinite' }} />
+                      <p>AI is analyzing data...</p>
+                    </div>
+                  ) : (
+                    <p>No results yet. Provide source resumes to begin.</p>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {results.length > 0 && (
+              <div style={{ marginTop: '16px', fontSize: '12px', color: 'var(--fg-3)', textAlign: 'right' }}>
+                Detected: <b>{results.length}</b> candidates
               </div>
             )}
           </div>
+
         </div>
       </main>
-
-      <footer style={{ textAlign: 'center', marginTop: '4rem', color: '#64748b', fontSize: '0.9rem' }}>
-        Built with Flask, Groq, and React • 30 Day Ship Challenge
-      </footer>
     </div>
   )
 }
