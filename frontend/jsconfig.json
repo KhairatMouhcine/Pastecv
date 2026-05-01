@@ -4,7 +4,8 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "checkJs": false,
+    "checkJs": true,
+    "strict": true,
     "allowJs": true,
     "skipLibCheck": true
   },
