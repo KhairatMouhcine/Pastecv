@@ -1,9 +1,6 @@
 # 📄 PasteCV — AI-Powered Resume Parser
 
-<div align="center">
-  <img src="https://img.shields.io/badge/DOCKER_FOUNDATION-blue?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/PASTECV_AI-orange?style=for-the-badge" />
-</div>
+
 
 ---
 
