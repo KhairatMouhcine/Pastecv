@@ -34,22 +34,22 @@ def parse_cv():
     try:
         system_prompt = (
             "You are an expert recruiter assistant. "
-            "Extract the following information from the provided CV text into a JSON object: "
-            "name, email, skills (as an array), experience (as an array of objects with title, company, and duration), "
-            "and education (as an array of objects with degree and school). "
-            "Return ONLY the JSON object."
+            "Your task is to identify and extract ALL individual CVs from the provided text. "
+            "Return a JSON object with a key 'cvs' which is an array of objects. "
+            "Each object must contain: name, email, skills (array), experience (array of objects), "
+            "and education (array of objects). "
+            "If only one CV is found, still return it inside the 'cvs' array."
         )
 
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"CV Text:\n{cv_text}"}
+                {"role": "user", "content": f"Text containing one or more CVs:\n{cv_text}"}
             ],
             model="llama3-8b-8192",
             response_format={"type": "json_object"},
         )
 
-        # Parse the string response into a Python dictionary
         import json
         structured_data = json.loads(chat_completion.choices[0].message.content)
         

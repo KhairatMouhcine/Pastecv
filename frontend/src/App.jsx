@@ -3,7 +3,7 @@ import { FileText, Code, Copy, Zap, Loader2 } from 'lucide-react'
 
 function App() {
   const [text, setText] = useState('')
-  const [result, setResult] = useState(null)
+  const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -11,7 +11,7 @@ function App() {
     if (!text.trim()) return
     
     setLoading(true)
-    setResult(null)
+    setResults([])
     
     try {
       const response = await fetch('http://127.0.0.1:5000/parse', {
@@ -22,7 +22,7 @@ function App() {
       
       const data = await response.json()
       if (response.ok) {
-        setResult(data)
+        setResults(data.cvs || [])
       } else {
         alert(data.error || 'Something went wrong')
       }
@@ -34,8 +34,8 @@ function App() {
   }
 
   const copyToClipboard = () => {
-    if (!result) return
-    navigator.clipboard.writeText(JSON.stringify(result, null, 2))
+    if (results.length === 0) return
+    navigator.clipboard.writeText(JSON.stringify(results, null, 2))
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -43,8 +43,8 @@ function App() {
   return (
     <div className="container">
       <header className="header">
-        <h1>PasteCV</h1>
-        <p>Transform messy CVs into clean, structured JSON in seconds.</p>
+        <h1>PasteCV <span style={{ fontSize: '1rem', verticalAlign: 'middle', opacity: 0.6 }}>PRO</span></h1>
+        <p>Paste multiple CVs at once. We'll split and structure them for you.</p>
       </header>
 
       <main className="main-grid">
@@ -52,10 +52,10 @@ function App() {
         <div className="card">
           <div className="card-title">
             <FileText size={20} className="text-primary" />
-            Raw CV Text
+            Paste all CVs here
           </div>
           <textarea 
-            placeholder="Paste CV text here... (e.g., Name, Experience, Skills)"
+            placeholder="Paste one or multiple CVs here. Claude will separate them automatically."
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
@@ -64,27 +64,29 @@ function App() {
             onClick={handleParse} 
             disabled={loading || !text.trim()}
           >
-            {loading ? <span className="loader"></span> : <><Zap size={18} /> Extract JSON</>}
+            {loading ? <span className="loader"></span> : <><Zap size={18} /> Extract {results.length > 0 ? results.length : ''} CVs</>}
           </button>
         </div>
 
         {/* Output Card */}
         <div className="card">
-          <div className="card-title">
-            <Code size={20} className="text-primary" />
-            Structured Output
+          <div className="card-title" style={{ justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Code size={20} className="text-primary" />
+              Structured Results {results.length > 0 && <span className="badge">{results.length}</span>}
+            </div>
           </div>
           <div className="output-container">
-            {result ? (
+            {results.length > 0 ? (
               <>
-                <button className="copy-btn" onClick={copyToClipboard} title="Copy JSON">
-                  {copied ? 'Copied!' : <Copy size={16} />}
+                <button className="copy-btn" onClick={copyToClipboard} title="Copy all JSON">
+                  {copied ? 'Copied All!' : <Copy size={16} />}
                 </button>
-                <pre>{JSON.stringify(result, null, 2)}</pre>
+                <pre>{JSON.stringify(results, null, 2)}</pre>
               </>
             ) : (
               <div style={{ color: '#64748b', textAlign: 'center', marginTop: '150px' }}>
-                Extracted data will appear here...
+                {loading ? 'Processing multiple CVs...' : 'Extracted CVs will appear here as a list...'}
               </div>
             )}
           </div>
