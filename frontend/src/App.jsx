@@ -113,7 +113,7 @@ function App() {
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+          <div className="btn-group" style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
             <button 
               className="btn btn-primary" 
               onClick={handleParse} 
