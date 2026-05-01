@@ -1,4 +1,5 @@
 import os
+import json
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from groq import Groq
@@ -53,7 +54,7 @@ def get_cv_data(cv_text):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"Text containing one or more CVs:\n{cv_text}"}
         ],
-        model="meta-llama/llama-4-scout-17b-16e-instruct",
+        model="llama-3.3-70b-versatile",
         response_format={"type": "json_object"},
     )
     return json.loads(chat_completion.choices[0].message.content)
