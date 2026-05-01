@@ -253,3 +253,4 @@ textarea:focus { border-color: var(--accent); background: white; }
 
 .text-primary { color: var(--accent); }
 .text-danger { color: var(--err); }
+"`n@media (max-width: 1024px) {`n  .grid {`n    grid-template-columns: 1fr;`n    gap: 24px;`n  }`n  .workspace {`n    padding: 20px 10px;`n  }`n  .pane {`n    min-height: auto;`n  }`n}`n`n@media (max-width: 640px) {`n  .topbar {`n    padding: 12px 16px;`n    flex-direction: column;`n    gap: 12px;`n    align-items: flex-start;`n  }`n  .brand-name .n {`n    font-size: 16px;`n  }`n  .workspace {`n    padding: 10px;`n  }`n  textarea, .output-container, .file-list {`n    height: 350px;`n  }`n  .pane {`n    padding: 16px;`n  }`n}"
