@@ -16,7 +16,7 @@ function App() {
     setLoading(true)
     setResults([])
     try {
-      const response = await fetch('http://127.0.0.1:5000/parse', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'}/parse`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text })
@@ -51,7 +51,7 @@ function App() {
     })
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/upload', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'}/upload`, {
         method: 'POST',
         body: formData
       })
