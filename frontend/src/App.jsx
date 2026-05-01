@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { FileText, Code, Copy, Zap, Loader2, Upload, Download, Trash2, Eye, X } from 'lucide-react'
 import jsPDF from 'jspdf'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import { Container, Row, Col, Button } from 'react-bootstrap'
 
 function App() {
   const [text, setText] = useState('')
@@ -100,123 +102,130 @@ function App() {
   }
 
   return (
-    <div className="app-root">
+    <div className="app-root pb-5">
       {/* ── Top Bar ───────────────────────────────────────── */}
-      <header className="topbar">
-        <div className="brand">
-          <div className="brand-mark">P</div>
-          <div className="brand-name">
-            <div className="n">PasteCV <span className="pro">PRO</span></div>
-            <div className="tag">AI Batch Parser</div>
+      <header className="topbar mb-4">
+        <Container fluid="lg" className="d-flex align-items-center justify-content-between">
+          <div className="brand">
+            <div className="brand-mark">P</div>
+            <div className="brand-name">
+              <div className="n">PasteCV <span className="pro">PRO</span></div>
+              <div className="tag">AI Batch Parser</div>
+            </div>
           </div>
-        </div>
-        <div className="top-actions">
-          <button className="btn" onClick={clearAll}><Trash2 size={14} /> Clear System</button>
-        </div>
+          <div className="top-actions">
+            <button className="btn" onClick={clearAll}><Trash2 size={14} /> Clear</button>
+          </div>
+        </Container>
       </header>
 
       {/* ── Workspace ─────────────────────────────────────── */}
-      <main className="workspace">
-        <div className="grid">
+      <Container fluid="lg" className="workspace">
+        <Row className="g-4">
           
           {/* ── Input Pane ── */}
-          <div className="pane">
-            <div className="corner tl"></div><div className="corner tr"></div>
-            <div className="corner bl"></div><div className="corner br"></div>
-            
-            <div className="pane-head">
-              <h2>Source Resumes</h2>
-              <div className="seg">Mode: <b>{selectedFiles.length > 0 ? 'Batch' : 'Text'}</b></div>
-            </div>
-
-            {selectedFiles.length > 0 ? (
-              <div className="file-list">
-                {selectedFiles.map((file, index) => (
-                  <div key={index} className="file-item">
-                    <span className="file-name">{file.name}</span>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <Eye size={16} className="text-primary" style={{ cursor: 'pointer' }} />
-                      <X size={16} style={{ color: 'var(--err)', cursor: 'pointer' }} onClick={() => removeFile(index)} />
-                    </div>
-                  </div>
-                ))}
-                <label className="btn" style={{ marginTop: 'auto', justifyContent: 'center', borderStyle: 'dashed' }}>
-                  <Upload size={16} /> Add more files...
-                  <input type="file" hidden multiple accept=".pdf,.docx,.txt" onChange={handleFileSelect} />
-                </label>
+          <Col lg={5}>
+            <div className="pane">
+              <div className="corner tl"></div><div className="corner tr"></div>
+              <div className="corner bl"></div><div className="corner br"></div>
+              
+              <div className="pane-head">
+                <h2>Source Resumes</h2>
+                <div className="seg">Mode: <b>{selectedFiles.length > 0 ? 'Batch' : 'Text'}</b></div>
               </div>
-            ) : (
-              <textarea 
-                placeholder="Paste raw text here or use batch upload..."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-              />
-            )}
 
-            <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
               {selectedFiles.length > 0 ? (
-                <button className="btn btn-primary" onClick={handleProcessFiles} disabled={loading} style={{ flex: 1 }}>
-                  {loading ? <span className="loader" style={{ width: '14px', height: '14px', borderTopColor: 'white' }}></span> : <><Zap size={16} /> Process Batch</>}
-                </button>
-              ) : (
-                <>
-                  <button className="btn btn-primary" onClick={handleParse} disabled={loading || !text.trim()} style={{ flex: 2 }}>
-                    {loading ? <span className="loader" style={{ width: '14px', height: '14px', borderTopColor: 'white' }}></span> : <><Zap size={16} /> Parse Text</>}
-                  </button>
-                  <label className="btn" style={{ flex: 1, justifyContent: 'center', cursor: 'pointer' }}>
-                    <Upload size={16} /> Batch
+                <div className="file-list">
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="file-item">
+                      <span className="file-name">{file.name}</span>
+                      <div className="d-flex gap-2">
+                        <Eye size={16} className="text-primary" style={{ cursor: 'pointer' }} />
+                        <X size={16} style={{ color: 'var(--err)', cursor: 'pointer' }} onClick={() => removeFile(index)} />
+                      </div>
+                    </div>
+                  ))}
+                  <label className="btn w-100 mt-auto justify-content-center" style={{ borderStyle: 'dashed' }}>
+                    <Upload size={16} /> Add more files...
                     <input type="file" hidden multiple accept=".pdf,.docx,.txt" onChange={handleFileSelect} />
                   </label>
-                </>
+                </div>
+              ) : (
+                <textarea 
+                  placeholder="Paste raw text here or use batch upload..."
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  style={{ minHeight: '400px' }}
+                />
               )}
+
+              <div className="mt-4 d-flex gap-3">
+                {selectedFiles.length > 0 ? (
+                  <button className="btn btn-primary w-100" onClick={handleProcessFiles} disabled={loading}>
+                    {loading ? <span className="loader" style={{ width: '14px', height: '14px', borderTopColor: 'white' }}></span> : <><Zap size={16} /> Process Batch</>}
+                  </button>
+                ) : (
+                  <>
+                    <button className="btn btn-primary flex-grow-1" onClick={handleParse} disabled={loading || !text.trim()}>
+                      {loading ? <span className="loader" style={{ width: '14px', height: '14px', borderTopColor: 'white' }}></span> : <><Zap size={16} /> Parse Text</>}
+                    </button>
+                    <label className="btn flex-shrink-0 d-flex align-items-center" style={{ cursor: 'pointer' }}>
+                      <Upload size={16} /> Batch
+                      <input type="file" hidden multiple accept=".pdf,.docx,.txt" onChange={handleFileSelect} />
+                    </label>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+          </Col>
 
           {/* ── Results Pane ── */}
-          <div className="pane">
-            <div className="corner tl"></div><div className="corner tr"></div>
-            <div className="corner bl"></div><div className="corner br"></div>
+          <Col lg={7}>
+            <div className="pane">
+              <div className="corner tl"></div><div className="corner tr"></div>
+              <div className="corner bl"></div><div className="corner br"></div>
 
-            <div className="pane-head">
-              <h2>Extraction Output</h2>
-              {results.length > 0 && (
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <button className="btn" onClick={copyToClipboard} title="Copy JSON">
-                    {copied ? 'Copied' : <Copy size={14} />}
-                  </button>
-                  <button className="btn" onClick={downloadPDF} title="Download PDF">
-                    <Download size={14} />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className="output-container">
-              {results.length > 0 ? (
-                <pre>{JSON.stringify(results, null, 2)}</pre>
-              ) : (
-                <div className="empty-state">
-                  {loading ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                      <Loader2 size={40} style={{ animation: 'spin 1s linear infinite' }} />
-                      <p>AI is analyzing data...</p>
-                    </div>
-                  ) : (
-                    <p>No results yet. Provide source resumes to begin.</p>
-                  )}
-                </div>
-              )}
-            </div>
-            
-            {results.length > 0 && (
-              <div style={{ marginTop: '16px', fontSize: '12px', color: 'var(--fg-3)', textAlign: 'right' }}>
-                Detected: <b>{results.length}</b> candidates
+              <div className="pane-head">
+                <h2>Extraction Output</h2>
+                {results.length > 0 && (
+                  <div className="d-flex gap-2">
+                    <button className="btn" onClick={copyToClipboard} title="Copy JSON">
+                      {copied ? 'Copied' : <Copy size={14} />}
+                    </button>
+                    <button className="btn" onClick={downloadPDF} title="Download PDF">
+                      <Download size={14} />
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-        </div>
-      </main>
+              <div className="output-container" style={{ minHeight: '400px' }}>
+                {results.length > 0 ? (
+                  <pre>{JSON.stringify(results, null, 2)}</pre>
+                ) : (
+                  <div className="empty-state">
+                    {loading ? (
+                      <div className="d-flex flex-column align-items-center gap-3">
+                        <Loader2 size={40} style={{ animation: 'spin 1s linear infinite' }} />
+                        <p>AI is analyzing data...</p>
+                      </div>
+                    ) : (
+                      <p>No results yet. Provide source resumes to begin.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              {results.length > 0 && (
+                <div className="mt-3 text-end" style={{ fontSize: '12px', color: 'var(--fg-3)' }}>
+                  Detected: <b>{results.length}</b> candidates
+                </div>
+              )}
+            </div>
+          </Col>
+
+        </Row>
+      </Container>
     </div>
   )
 }
